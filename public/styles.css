@@ -1,164 +1,39 @@
-/* Brand colors */
-:root{
-  --ink: #0d1b2a;      /* deep blue */
-  --copper: #b85c38;   /* accent */
-  --paper: #f8f8f2;    /* light */
-  --black: #000000;    /* pure black for text accents */
-}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Superfan Snapshot</title>
 
-*{ box-sizing:border-box; }
-html, body{ height:100%; }
-body{
-  margin:0;
-  background: var(--paper);
-  color: var(--ink);
-  font-family: 'Lato', system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-  line-height:1.6;
-}
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
 
-/* Header */
-.site-header{
-  display:flex;
-  align-items:center;
-  gap:1rem;
-  padding:1.25rem 1rem;
-  border-bottom: 4px solid var(--copper);
-  background:#fff;
-}
-.logo{
-  width:48px; height:48px; object-fit:contain;
-}
-.site-header h1{
-  margin:0;
-  font-family: 'Playfair Display', Georgia, serif;
-  font-weight:700;
-  letter-spacing:0.2px;
-  color: var(--ink);
-}
+  <!-- Favicon (uses your logo) -->
+  <link rel="icon" type="image/png"
+        href="https://66354807463c43536c57-4680b7aeabbe1da89e76c74f0f782234.ssl.cf1.rackcdn.com/1708/68d6c8aab9031.Brand%20Niche%20Icon%20copper.png" />
 
-/* Layout */
-.container{
-  max-width:900px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-}
-.chat-wrapper{
-  background:#fff;
-  border:1px solid rgba(0,0,0,.06);
-  border-radius: 18px;
-  box-shadow: 0 10px 24px rgba(0,0,0,.06);
-  padding: 1rem;
-}
+  <!-- Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <img class="logo"
+         src="https://66354807463c43536c57-4680b7aeabbe1da89e76c74f0f782234.ssl.cf1.rackcdn.com/1708/68d6c8aab9031.Brand%20Niche%20Icon%20copper.png"
+         alt="The Brand Niche logo" />
+    <h1>Superfan Snapshot</h1>
+  </header>
 
-.chat{
-  height: 52vh;
-  min-height: 320px;
-  overflow:auto;
-  padding: 1rem;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #fff, #fff);
-  border: 1px solid rgba(0,0,0,.05);
-}
+  <main class="container">
+    <div class="chat-wrapper">
+      <div id="chat" class="chat" aria-live="polite"></div>
 
-/* Messages */
-.msg{
-  max-width: 78%;
-  padding: .75rem 1rem;
-  margin: .35rem 0;
-  border-radius: 14px;
-  word-wrap: break-word;
-}
-.msg.bot{
-  background: #fff9f6;
-  border:1px solid rgba(184,92,56,.35);
-  color: var(--ink);
-}
-.msg.user{
-  margin-left:auto;
-  background: var(--ink);
-  color: #fff;
-  border:1px solid rgba(0,0,0,.2);
-}
-
-/* Form */
-.chat-form{
-  display:flex;
-  gap:.75rem;
-  margin-top: .75rem;
-  align-items:flex-start;
-}
-.chat-form textarea{
-  flex:1;
-  resize:none;
-  border:1.5px solid rgba(13,27,42,.25);
-  border-radius: 12px;
-  padding:.9rem 1rem;
-  font-size:1rem;
-  min-height:2.5rem;
-  max-height: 30vh;
-  outline:none;
-}
-.chat-form textarea:focus{
-  border-color: var(--copper);
-  box-shadow: 0 0 0 3px rgba(184,92,56,.15);
-}
-
-.form-actions{
-  display:flex;
-  gap:.5rem;
-  flex-wrap:wrap;
-}
-
-.btn{
-  appearance:none;
-  border:0;
-  background: var(--copper);
-  color: #fff;
-  font-weight:700;
-  padding:.8rem 1rem;
-  border-radius:12px;
-  cursor:pointer;
-}
-.btn:hover{ filter:brightness(.95); }
-.btn:active{ transform: translateY(1px); }
-
-.btn-ghost{
-  background: transparent;
-  color: var(--copper);
-  border: 2px solid var(--copper);
-}
-
-.helper{
-  margin:.35rem 0 0;
-  color: #4a4f57;
-  font-size:.95rem;
-}
-.progress{
-  margin:.35rem 0 0;
-  color:#7a8088;
-  font-size:.9rem;
-  text-align:right;
-}
-
-/* Footer */
-.site-footer{
-  text-align:center;
-  padding: 1.5rem 1rem 3rem;
-  color:#6a7078;
-}
-
-/* Utilities */
-.sr-only{
-  position:absolute !important;
-  height:1px;width:1px;
-  overflow:hidden;clip:rect(1px,1px,1px,1px);
-  white-space:nowrap;border:0;padding:0;margin:-1px;
-}
-
-pre.dump{
-  background:#111;
-  color:#f8f8f2;
-  padding:1rem;
-  border-radius:12px;
-  overflow:auto;
-}
+      <form id="chat-form" class="chat-form">
+        <label class="sr-only" for="input">Your answer</label>
+        <textarea id="input" placeholder="Type your answer…" rows="2" required></textarea>
+        <div class="form-actions">
+          <button type="submit" class="btn">Send</button>
+          <button type="button" id="skip" class="btn btn-ghost" title="Skip this question">Skip</button>
+        </div>
+      </form>
+      <p id="helper" class="helper" aria-live="polite"></p>
+      <p class="progress"><span id="pcount">1</span>/<span id="ptotal">12</span
