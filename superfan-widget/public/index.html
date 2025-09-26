@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Superfan Snapshot</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="container">
+    <h1>Meet Your Superfan</h1>
+    <div id="chat"></div>
+    <form id="chat-form">
+      <input id="input" type="text" placeholder="Type your answer..." required />
+      <button>Send</button>
+    </form>
+  </main>
+  <script>
+    const questions = [
+      "Give your Superfan a name.",
+      "What’s the #1 struggle they face?",
+      "How does that struggle show up day-to-day?",
+      "How do they feel about it (emotions)?",
+      "Where do they feel unseen (work/home/community)?",
+      "Describe the BEFORE snapshot (1–2 sentences).",
+      "Describe the AFTER snapshot (1–2 sentences).",
+      "Who else benefits when they win (the ripple)?",
+      "Where do they already have influence?",
+      "What tone should the story use? (warm, bold, playful, etc.)"
+    ];
+    let step = 0;
+    const answers = {};
+    const chat = document.getElementById('chat');
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('input');
+
+    function addMessage(text, who="bot") {
+      const div = document.createElement("div");
+      div.className = who;
+      div.textContent = text;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+
+    function askNext() {
+      if (step < questions.length) {
+        addMessage(questions[step], "bot");
+      } else {
+        generateSnapshot();
+      }
+    }
+
+    async function generateSnapshot() {
+      addMessage("Generating your Superfan Snapshot...", "bot");
+      const res = await fetch("/.netlify/functions/superfan", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ inputs: answers })
+      });
+      const json = await res.json();
+      chat.innerHTML += `<div class="bot">${json.html}</div>`;
+    }
+
+    form.addEventListener("submit", e => {
+      e.preventDefault();
+      const val = input.value.trim();
+      if (!val) return;
+      addMessage(val, "user");
+      answers[`q${step+1}`] = val;
+      input.value = "";
+      step++;
+      askNext();
+    });
+
+    askNext();
+  </script>
+</body>
+</html>
