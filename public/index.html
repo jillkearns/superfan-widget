@@ -4,74 +4,186 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Superfan Snapshot</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <header class="site-header">
+    <img class="logo" src="assets/Brand Niche Icon copper-2.png" alt="The Brand Niche logo" />
+    <h1>Superfan Snapshot</h1>
+  </header>
+
   <main class="container">
-    <h1>Meet Your Superfan</h1>
-    <div id="chat"></div>
-    <form id="chat-form">
-      <input id="input" type="text" placeholder="Type your answer..." required />
-      <button>Send</button>
-    </form>
+    <div class="chat-wrapper">
+      <div id="chat" class="chat" aria-live="polite"></div>
+
+      <form id="chat-form" class="chat-form">
+        <label class="sr-only" for="input">Your answer</label>
+        <textarea id="input" placeholder="Type your answer…" rows="2" required></textarea>
+        <div class="form-actions">
+          <button type="submit" class="btn">Send</button>
+          <button type="button" id="skip" class="btn btn-ghost" title="Skip this question">Skip</button>
+        </div>
+      </form>
+      <p id="helper" class="helper" aria-live="polite"></p>
+      <p class="progress"><span id="pcount">1</span>/<span id="ptotal">12</span></p>
+    </div>
   </main>
+
+  <footer class="site-footer">
+    <small>Built with ❤️ using the Superfan Effect framework.</small>
+  </footer>
+
   <script>
-    const questions = [
-      "Give your Superfan a name.",
-      "What’s the #1 struggle they face?",
-      "How does that struggle show up day-to-day?",
-      "How do they feel about it (emotions)?",
-      "Where do they feel unseen (work/home/community)?",
-      "Describe the BEFORE snapshot (1–2 sentences).",
-      "Describe the AFTER snapshot (1–2 sentences).",
-      "Who else benefits when they win (the ripple)?",
-      "Where do they already have influence?",
-      "What tone should the story use? (warm, bold, playful, etc.)"
+    // --- QUESTION SET (simplified + starts with the business) ---
+    // Each item has: q (the question) and hint (short coaching to elicit richer answers)
+    const qset = [
+      {
+        q: "In one simple sentence, what does your business do?",
+        hint: "Plain words. e.g., “I help {who} {solve what} so they can {outcome}.”"
+      },
+      {
+        q: "Who are you serving right now?",
+        hint: "Patterns you notice in age, role, season of life, or shared struggles."
+      },
+      {
+        q: "What is the #1 practical struggle you solve for them?",
+        hint: "Name the core problem your work consistently fixes."
+      },
+      {
+        q: "What emotions sit underneath that struggle?",
+        hint: "3–5 words like: overwhelmed, ashamed, stuck, anxious, hopeful."
+      },
+      {
+        q: "Where do they feel unseen or unsupported (work, home, community)?",
+        hint: "Who doesn’t ‘get it’? Where do they feel overlooked or compared?"
+      },
+      {
+        q: "What’s their ‘not this’ and the dream they can’t reach alone?",
+        hint: "Briefly describe what they’re desperate to get away from, then the vision you hold for them."
+      },
+      {
+        q: "Before Snapshot (1–2 sentences).",
+        hint: "Their life right now: frustrations, constraints, and how it feels day-to-day."
+      },
+      {
+        q: "After Snapshot (1–2 sentences).",
+        hint: "Life with your help: results, relief, identity shift."
+      },
+      {
+        q: "Ripple: who else benefits when they win—and how will they share it?",
+        hint: "Family, clients, team, congregation, followers, group members, etc."
+      },
+      {
+        q: "Where do they already have influence?",
+        hint: "Roles, platforms, groups, leadership, communities that trust them."
+      },
+      {
+        q: "Give your Superfan a name and exact age.",
+        hint: "Make them feel real (e.g., “Jessica, 57”)."
+      },
+      {
+        q: "What tone should the story use? (warm, bold, playful, compassionate, etc.)",
+        hint: "Pick 1–2 words that match your brand voice."
+      }
     ];
+
     let step = 0;
     const answers = {};
-    const chat = document.getElementById('chat');
-    const form = document.getElementById('chat-form');
-    const input = document.getElementById('input');
+    const chat = document.getElementById("chat");
+    const form = document.getElementById("chat-form");
+    const input = document.getElementById("input");
+    const helper = document.getElementById("helper");
+    const skipBtn = document.getElementById("skip");
+    const pcount = document.getElementById("pcount");
+    const ptotal = document.getElementById("ptotal");
+    ptotal.textContent = qset.length;
 
-    function addMessage(text, who="bot") {
+    function addMessage(text, who = "bot") {
       const div = document.createElement("div");
-      div.className = who;
-      div.textContent = text;
+      div.className = `msg ${who}`;
+      div.innerHTML = text.replace(/\n/g, "<br/>");
       chat.appendChild(div);
       chat.scrollTop = chat.scrollHeight;
     }
 
+    function setHelper(text) {
+      helper.textContent = text || "";
+    }
+
     function askNext() {
-      if (step < questions.length) {
-        addMessage(questions[step], "bot");
+      if (step < qset.length) {
+        const { q, hint } = qset[step];
+        addMessage(q, "bot");
+        setHelper(hint);
+        pcount.textContent = step + 1;
+        // Focus and grow textarea
+        setTimeout(() => input.focus(), 50);
       } else {
         generateSnapshot();
       }
     }
 
     async function generateSnapshot() {
-      addMessage("Generating your Superfan Snapshot...", "bot");
-      const res = await fetch("/.netlify/functions/superfan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ inputs: answers })
-      });
-      const json = await res.json();
-      chat.innerHTML += `<div class="bot">${json.html}</div>`;
+      addMessage("Great work. Generating your Superfan Snapshot…", "bot");
+
+      try {
+        // Send to your Netlify Function (kept the same path)
+        const res = await fetch("/.netlify/functions/superfan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ inputs: answers })
+        });
+
+        const json = await res.json();
+        // Expecting { html } back
+        addMessage(json.html || "<p><strong>Snapshot ready.</strong> (No HTML returned.)</p>", "bot");
+      } catch (err) {
+        console.error(err);
+        addMessage(
+          "<p><strong>Hmm…</strong> I couldn’t reach the snapshot service. Your answers are saved below so you don’t lose anything.</p>" +
+          `<pre class="dump">${JSON.stringify(answers, null, 2)}</pre>`,
+          "bot"
+        );
+      }
+      setHelper("");
     }
 
-    form.addEventListener("submit", e => {
+    // Autosize textarea
+    function autosize(el) {
+      el.style.height = "auto";
+      el.style.height = el.scrollHeight + "px";
+    }
+    input.addEventListener("input", () => autosize(input));
+
+    form.addEventListener("submit", (e) => {
       e.preventDefault();
       const val = input.value.trim();
       if (!val) return;
       addMessage(val, "user");
-      answers[`q${step+1}`] = val;
+      answers[`q${step + 1}`] = val;
       input.value = "";
+      autosize(input);
       step++;
       askNext();
     });
 
+    skipBtn.addEventListener("click", () => {
+      addMessage("<em>(skipped)</em>", "user");
+      answers[`q${step + 1}`] = "";
+      step++;
+      askNext();
+    });
+
+    // Seed the conversation with a warm intro that anchors to your framework
+    addMessage(
+      "<strong>Welcome!</strong> We’ll map one person—the Superfan—whose transformation and influence ripple your message far beyond ads or algorithms. Short, honest answers are perfect.",
+      "bot"
+    );
     askNext();
   </script>
 </body>
